@@ -3,12 +3,12 @@
   - name: set network config dir path - ubuntu
     set_fact:
       network_dir_path: /etc/network/interfaces.d
-    when: os == 'ubuntu'
+    when: ansible_os_family == 'Debian'
   
   - name: set network dir path - rhel
     set_fact:
       network_dir_path: /etc/sysconfig/network-scripts
-    when: os == 'rhel'
+    when: ansible_os_family == 'RedHat'
   tags: ['prereboot'] 
 
 - block: 
@@ -21,7 +21,7 @@
       group: root
       mode: 0644
     when: 
-      - os == 'ubuntu'
+      - ansible_os_family == 'Debian'
 
   - name: create interfaces.d directory if multiple interface files
     file:
@@ -29,7 +29,7 @@
       path: "{{ network_dir_path }}"
       mode: 0755
     when: 
-      - os == 'ubuntu'
+      - ansible_os_family == 'Debian'
   
   - name: remove unnecessary network config
     file:
@@ -66,7 +66,7 @@
 
 - include: ucarp.yml
   when:
-    - os == 'rhel'
+    - ansible_os_family == 'RedHat'
     - network.ucarp.config|length > 0
   tags: ['prereboot']
 

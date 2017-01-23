@@ -12,18 +12,17 @@
     - headers
   notify:
     - reload apache
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: remove custom headers config
   file: path=/etc/apache2/mods-enabled/headers.conf
         state=absent
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   notify:
     - reload apache
 
 - name: create horizon config directory
   file: dest=/etc/openstack-dashboard state=directory
-
 
 - name: create horizon config directory
   file: dest=/etc/openstack-dashboard state=directory
@@ -31,49 +30,45 @@
 #- name: openstack dashboard config rhel)
 #  template: src=etc/apache2/sites-available/openstack_dashboard.conf
 #            dest=/etc/httpd/conf.d/openstack_dashboard.conf
-#  when: os == 'rhel'
+#  when: ansible_os_family == 'RedHat'
 #  notify:
 #    - reload apache
 
 - name: openstack dashboard config (12.04)
   template: src=etc/apache2/sites-available/openstack_dashboard.conf
             dest=/etc/apache2/sites-available/openstack_dashboard
-  when:
-    - os == 'ubuntu'
-    - ansible_distribution_version == "12.04"
+  when: ansible_os_family == 'Debian' and
+        ansible_distribution_version == "12.04"
   notify:
     - reload apache
 
 - name: openstack dashboard config
   template: src=etc/apache2/sites-available/openstack_dashboard.conf
             dest=/etc/apache2/sites-available/openstack_dashboard.conf
-  when:
-    - os == 'ubuntu'
-    - ansible_distribution_version != "12.04"
+  when: ansible_os_family == 'Debian' and
+        ansible_distribution_version != "12.04"
   notify:
     - reload apache
 
 - name: openstack dashboard config
   template: src=etc/apache2/sites-available/openstack_dashboard.conf
             dest=/etc/apache2/sites-available/openstack_dashboard.conf
-  when:
-    - os == 'ubuntu'
-    - ansible_distribution_version != "12.04"
+  when: ansible_os_family == 'Debian' and
+        ansible_distribution_version != "12.04"
   notify:
     - reload apache
 
 - name: openstack dashboard config (rhel osp)
   template: src=etc/httpd/conf.d/openstack-dashboard.conf
             dest=/etc/httpd/conf.d/openstack-dashboard.conf
-  when:
-    - os == 'rhel'
-    - openstack_install_method == "distro"
+  when: ansible_os_family == 'RedHat' and
+        openstack_install_method == "distro"
   notify:
     - reload apache
 
 - name: enable horizon apache site
   apache2_site: name=openstack_dashboard state=present
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   notify:
     - reload apache
 
@@ -122,7 +117,7 @@
     - static/dashboard
     - static/img
     - static/dashboard/fonts
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 ## FIXME
 ## We need to figure out the proper way to get horizon to use /etc/ when
@@ -134,8 +129,8 @@
         group="{{ apache_user }}"
         mode=0644
         state=link
-  when: os == 'ubuntu'
-
+  when: ansible_os_family == 'Debian'
+  
 - name: link local settings to /etc/openstack-dashboard
   file: src=/etc/openstack-dashboard/local_settings.py
         dest=/usr/share/openstack-dashboard/openstack_dashboard/local/local_settings.py
@@ -143,9 +138,7 @@
         group="{{ apache_user }}"
         mode=0644
         state=link
-  when:
-    - os == 'rhel'
-    - openstack_install_method == 'distro'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'distro'
 
 - name: custom horizon logo
   get_url: url={{ item.url }}
@@ -179,8 +172,8 @@
     path: "{{ horizon.horizon_lib_dir }}/lib/python2.7/site-packages/openstack_dashboard/local/enabled/_1481_project_ng_loadbalancersv2_panel.py"
     state: "{{ (neutron.lbaas.enabled | bool) | ternary('link', 'absent') }}"
   notify: reload apache
-  when: os == 'ubuntu'
-
+  when: ansible_os_family == 'Debian'
+  
 - name: gather static assets from openstack install (ubuntu)
   environment:
     DJANGO_SETTINGS_MODULE: 'openstack_dashboard.settings'
@@ -189,7 +182,7 @@
   with_items:
     - "{{ horizon.horizon_lib_dir }}/bin/django-admin.py collectstatic --noinput"
     - "{{ horizon.horizon_lib_dir }}/bin/django-admin.py compress --force"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 
 - name: trigger restart on upgrades
@@ -205,7 +198,7 @@
 
 - name: ensure apache started
   service: name="{{ apache.service_name[os] }}" state=started
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit HTTP and HTTPS
   ufw: rule=allow to_port={{ item }} proto=tcp
@@ -213,7 +206,7 @@
   with_items:
   - 80
   - 443
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit access to horizon
   firewalld:
@@ -224,7 +217,7 @@
     - 80
     - 443
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - meta: flush_handlers
 

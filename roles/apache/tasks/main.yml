@@ -2,12 +2,12 @@
 - set_fact:
     apache_user: www-data
     apache_group: www-data
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - set_fact:
     apache_user: apache
     apache_group: apache
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: install apache package
   package: name="{{ apache.package_name[os] }}"
@@ -19,7 +19,7 @@
   template:
     src: httpd.conf
     dest: /etc/httpd/conf/httpd.conf
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   notify:
     - reload apache
 
@@ -41,13 +41,13 @@
     - rewrite
     - uwsgi
   notify: reload apache
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: disable apache status
   command: a2dismod status
   notify:
     - reload apache
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: disable apache status
   lineinfile:
@@ -56,7 +56,7 @@
     state: absent
   notify:
     - reload apache
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: disable apache status
   lineinfile:
@@ -65,7 +65,7 @@
     state: absent
   notify:
     - reload apache
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: disable default vhost
   apache2_site: name={{ item }} state=absent
@@ -73,7 +73,7 @@
     - 000-default
     - default-ssl
   notify: restart apache
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: disable default vhosts
   file: dest=/etc/httpd/conf.d/{{ item }} state=absent
@@ -82,14 +82,14 @@
     - userdir.conf
     - welcome.conf
   notify: restart apache
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: do not include ports.conf
   lineinfile: dest=/etc/apache2/apache2.conf
               regexp="^Include ports\.conf$"
               state=absent
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: remove ports.conf
   file: dest=/etc/apache2/ports.conf state=absent
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'

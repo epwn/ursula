@@ -19,12 +19,12 @@
 # WORKAROUND: `service haproxy stop` fails due to incorrect `start-stop-daemon --pid`
 - name: fix haproxy init script
   template: src=etc/init.d/haproxy dest=/etc/init.d/haproxy mode=0755
-  when: os == "ubuntu"
+  when: ansible_os_family == "Debian"
 
 - name: install haproxy rsyslog config
   template: src=etc/rsyslog.d/haproxy.conf
             dest=/etc/rsyslog.d/49-haproxy.conf
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   notify: restart rsyslog
   tags:
     - ssl
@@ -45,7 +45,7 @@
 
 - name: set selinux policy for haproxy
   seboolean: name=haproxy_connect_any state=yes persistent=yes
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   tags: selinux
 
 - name: start and enable haproxy

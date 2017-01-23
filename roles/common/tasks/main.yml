@@ -94,11 +94,11 @@
   with_items: "{{ common.os_tuning_params_clean }}"
 
 - include: ufw.yml
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   tags: ufw
 
 - include: firewalld.yml
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   tags: firewalld
 
 - include: ntp.yml
@@ -106,7 +106,7 @@
 
 # Include serial console before kernel-tuning to build serial_console_cmdline
 - include: serial-console.yml tty={{ common.serial_console.name }}
-  when: common.serial_console.enabled | bool and os == 'ubuntu'
+  when: common.serial_console.enabled | bool and ansible_os_family == 'Debian'
   tags: ['prereboot']
 
 - include: ipmi.yml
@@ -115,7 +115,7 @@
 
 - include: kernel-tuning.yml
   tags: ['prereboot']
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - include: disable-swap.yml
 
@@ -148,7 +148,7 @@
 # run this last so we only update if run was successful
 - name: drop an motd with ursula metadata
   template: src=etc/update-motd.d/90-ursula-motd dest=/etc/update-motd.d/90-ursula-motd mode=0755
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: drop ursula release file
   template: src=etc/ursula-release dest=/etc/ursula-release mode=0640

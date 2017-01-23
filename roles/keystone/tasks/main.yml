@@ -38,7 +38,7 @@
 - name: set uwsgi path (package install ubuntu)
   set_fact:
     uwsgi_path: "{{ openstack_package.virtualenv_base }}/keystone/bin/uwsgi"
-  when: openstack_install_method == 'package' and os == 'ubuntu'
+  when: openstack_install_method == 'package' and ansible_os_family == 'Debian'
   
 - name: set uwsgi path (package install rhel)
   set_fact:
@@ -48,14 +48,14 @@
 - name: install keystone uwsgi service
   template: src=etc/init/keystone.conf
             dest=/etc/init/keystone.conf mode=0644
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install keystone uwsgi service
   systemd_service:
     name: keystone
     cmd: "{{ uwsgi_path }}"
     args: "--uid keystone --gid keystone --master --emperor /etc/keystone/uwsgi"
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: Creates keystone uwsgi and httpd directories
   file: path={{ item }} state=directory
@@ -86,7 +86,7 @@
 - name: keystone apache vhost
   template: src=etc/apache2/sites-available/keystone.conf
             dest=/etc/apache2/sites-available/keystone.conf
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   notify:
     - reload apache
   tags: keystone-federation
@@ -94,7 +94,7 @@
 - name: keystone apache vhost
   template: src=etc/apache2/sites-available/keystone.conf
             dest=/etc/httpd/conf.d/keystone.conf
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   notify:
     - reload apache
   tags: keystone-federation
@@ -134,7 +134,7 @@
   apache2_site: name=keystone state=present
   notify:
     - reload apache
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - include: ldap.yml
   when: keystone.ldap_domain.enabled|default('False')|bool
@@ -155,7 +155,7 @@
     - "{{ endpoints.keystone.port.haproxy_api }}"
     - "{{ endpoints.keystone_admin.port.haproxy_api }}"
     - "{{ endpoints.keystone_legacy.port.haproxy_api }}"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit access to keystone
   firewalld:
@@ -167,7 +167,7 @@
     - "{{ endpoints.keystone_admin.port.haproxy_api }}"
     - "{{ endpoints.keystone_legacy.port.haproxy_api }}"
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'Debian'
 
 - name: add cron job to clean up expired tokens
   template:

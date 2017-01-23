@@ -10,14 +10,14 @@
 
 - name: install perl which module - ubuntu
   package: name=libfile-which-perl
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   register: result
   until: result|succeeded
   retries: 5
 
 - name: install perl which module - ubuntu
   package: name=perl-File-Which
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   register: result
   until: result|succeeded
   retries: 5
@@ -86,7 +86,7 @@
 
 - name: override sensu-client startup
   shell: update-rc.d sensu-client defaults
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install sensu plugin pip modules
   pip: name=sensu_plugin version=0.1.0

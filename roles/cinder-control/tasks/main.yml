@@ -4,7 +4,7 @@
                    user=cinder
                    cmd=/usr/local/bin/{{ item }}
                    config_dirs=/etc/cinder
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   with_items:
     - cinder-api
     - cinder-scheduler
@@ -14,7 +14,7 @@
                    user=cinder
                    cmd=/usr/local/bin/{{ item }}
                    config_dirs=/etc/cinder
-  when: os == 'rhel' and openstack_install_method == 'source'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'source'
   with_items:
     - cinder-api
     - cinder-scheduler
@@ -55,7 +55,7 @@
 - name: Permit access to Cinder
   ufw: rule=allow to_port={{ endpoints.cinder.port.haproxy_api }} proto=tcp
   tags: ufw
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit access to Cinder
   firewalld:
@@ -63,7 +63,7 @@
     permanent: true
     port: "{{ endpoints.cinder.port.haproxy_api }}/tcp"
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - include: monitoring.yml
   tags:

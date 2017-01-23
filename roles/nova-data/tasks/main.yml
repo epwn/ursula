@@ -24,7 +24,7 @@
     dest: "{{ nova.state_path }}"
     state: directory
     owner: nova
-    group: "{{ (os == 'rhel' ) | ternary('qemu', 'nova') }}"
+    group: "{{ (ansible_os_family == 'RedHat' ) | ternary('qemu', 'nova') }}"
     mode: 0770
 
 
@@ -33,21 +33,21 @@
     dest: "{{ nova.state_path }}/instances"
     state: directory
     owner: nova
-    group: "{{ (os == 'rhel' ) | ternary('qemu', 'nova') }}"
+    group: "{{ (ansible_os_family == 'RedHat' ) | ternary('qemu', 'nova') }}"
     mode: 0770
 
 - name: nbd module - ubuntu
   lineinfile: dest=/etc/modules line="nbd"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: probe nbd - ubuntu
   modprobe: name=nbd state=present
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install nbd package - rhel
   package:
     name: nbd
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: check if SMT is enabled
   command: "ppc64_cpu --smt"
@@ -78,12 +78,12 @@
 - name: install nova-compute service
   upstart_service: name=nova-compute user=nova cmd=/usr/local/bin/nova-compute
                    config_dirs=/etc/nova
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install nova-compute service (rhel source)
   systemd_service: name=nova-compute user=nova cmd=/usr/local/bin/nova-compute
                    config_dirs=/etc/nova
-  when: os == 'rhel' and openstack_install_method == 'source'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'source'
 
 - name: trigger restart on upgrades
   debug:

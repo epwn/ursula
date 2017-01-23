@@ -1,19 +1,19 @@
 ---
 - set_fact:
     tgt_service: tgt
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - set_fact:
     tgt_service: tgtd
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - set_fact:
     iscsi_service: open-iscsi
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - set_fact:
     iscsi_service: iscsid
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: check if cinder user exists
   shell: getent passwd cinder

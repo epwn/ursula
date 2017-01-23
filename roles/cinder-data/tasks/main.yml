@@ -8,14 +8,14 @@
     - nbd-client
     - open-iscsi
     - qemu-utils
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   register: result
   until: result|succeeded
   retries: 5
 
 - name: install cinder-data required packages
   package: name={{ item }}
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
   with_items:
     - cryptsetup
     - lvm2
@@ -65,27 +65,27 @@
   upstart_service: name=cinder-volume user=cinder
                    cmd=/usr/local/bin/cinder-volume
                    config_dirs=/etc/cinder
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install cinder backup service
   upstart_service: name=cinder-backup
                    user=cinder
                    cmd=/usr/local/bin/cinder-backup
                    config_dirs=/etc/cinder
-  when: os == 'ubuntu' and swift.enabled|default("false")|bool
+  when: ansible_os_family == 'Debian' and swift.enabled|default("false")|bool
 
 - name: install cinder-volume service
   systemd_service: name=cinder-volume user=cinder
                    cmd=/usr/local/bin/cinder-volume
                    config_dirs=/etc/cinder
-  when: os == 'rhel' and openstack_install_method == 'package'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'package'
 
 - name: install cinder backup service
   systemd_service: name=cinder-backup
                    user=cinder
                    cmd=/usr/local/bin/cinder-backup
                    config_dirs=/etc/cinder
-  when: os == 'rhel' and swift.enabled|default("false")|bool and openstack_install_method == 'package'
+  when: ansible_os_family == 'RedHat' and swift.enabled|default("false")|bool and openstack_install_method == 'package'
 
 
 - name: trigger restart on upgrades

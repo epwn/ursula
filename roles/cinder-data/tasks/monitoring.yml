@@ -8,7 +8,7 @@
 - name: cinder-volume process check
   sensu_process_check: service=openstack-cinder-volume
   notify: restart sensu-client
-  when: openstack_install_method == 'distro' and os == 'rhel'
+  when: openstack_install_method == 'distro' and ansible_os_family == 'RedHat'
 
 - name: iscsid process check
   sensu_process_check: service=iscsid
@@ -40,4 +40,4 @@
 - name: cinder-backup process check
   sensu_process_check: service=openstack-cinder-backup
   notify: restart sensu-client
-  when: swift.enabled|default("False")|bool and openstack_install_method == 'distro' and os == 'rhel'
+  when: swift.enabled|default("False")|bool and openstack_install_method == 'distro' and ansible_os_family == 'RedHat'

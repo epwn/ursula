@@ -61,7 +61,7 @@
   with_items:
     - "{{ endpoints.glance.port.haproxy_api }}"
     - "{{ endpoints.glance.port.backend_api }}"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit access to glance
   firewalld:
@@ -72,7 +72,7 @@
     - "{{ endpoints.glance.port.haproxy_api }}"
     - "{{ endpoints.glance.port.backend_api }}"
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: install glance services
   systemd_service: name={{ item }}

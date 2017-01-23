@@ -4,11 +4,11 @@
 
 - name: refresh CAs
   command: update-ca-certificates
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: refresh rhel CAs
   command: /bin/update-ca-trust extract
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: apply-sysctl
   shell: "cat /etc/sysctl.d/*.conf /etc/sysctl.conf | sysctl -e -p -"
@@ -32,4 +32,4 @@
   register: result
   until: result|succeeded
   retries: 5
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'

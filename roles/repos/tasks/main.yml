@@ -1,5 +1,5 @@
 - include: apt.yml
-  when: os == "ubuntu"
+  when: ansible_os_family == "ubuntu"
 
 - include: yum.yml
-  when: os == "rhel"
+  when: ansible_os_family == "rhel"

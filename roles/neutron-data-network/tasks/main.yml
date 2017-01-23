@@ -13,17 +13,17 @@
 - name: install arping - ubuntu
   package:
     name: iputils-arping
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install resolvconf - ubuntu
   package:
     name: resolvconf
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install arping - rhel
   package:
     name: iputils
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: install custom ucarp scripts - rhel
   template:
@@ -35,7 +35,7 @@
   with_items:
     - ucarp-vip-up
     - ucarp-vip-down
-  when: ucarp is defined and os == 'rhel'
+  when: ucarp is defined and ansible_os_family == 'RedHat'
 
 - name: install packages for l3ha
   package: name=keepalived
@@ -53,7 +53,7 @@
 - include: dnsmasq.yml
 
 - include: igmp-router.yml
-  when: os == 'ubuntu' and (
+  when: ansible_os_family == 'Debian' and (
         neutron.plugin == 'ml2' and
         'vxlan' in neutron.tunnel_types
         and not neutron.l2_population )
@@ -81,7 +81,7 @@
     config_dirs: /etc/neutron
     config_files: /etc/neutron/neutron.conf,{{ item.value.config_files }}
     envs: "{{ neutron.service.envs }}"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   with_dict:
     neutron-dhcp-agent:
       config_files: /etc/neutron/dhcp_agent.ini
@@ -99,7 +99,7 @@
     config_dirs: /etc/neutron
     config_files: /etc/neutron/neutron.conf,{{ item.value.config_files }}
     #envs: "{{ neutron.service.envs }}"
-  when: os == 'rhel' and openstack_install_method == 'source'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'source'
   with_dict:
     neutron-dhcp-agent:
       config_files: /etc/neutron/dhcp_agent.ini
@@ -117,7 +117,7 @@
     config_dirs: /etc/neutron
     config_files: /etc/neutron/neutron.conf,{{ item.value.config_files }}
     #envs: "{{ neutron.service.envs }}"
-  when: os == 'rhel' and openstack_install_method == 'distro'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'distro'
   with_dict:
     neutron-dhcp-agent:
       config_files: /etc/neutron/dhcp_agent.ini
@@ -135,7 +135,7 @@
     config_dirs: /etc/neutron
     config_files: /etc/neutron/neutron.conf,{{ item.value.config_files }}
     #envs: "{{ neutron.service.envs }}"
-  when: os == 'rhel' and openstack_install_method == 'package'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'package'
   with_dict:
     neutron-dhcp-agent:
       config_files: /etc/neutron/dhcp_agent.ini
@@ -216,7 +216,7 @@
     config_dirs: /etc/neutron
     config_files: "{{ item.value.config_files|join(',') }}"
     envs: "{{ neutron.service.envs }}"
-  when: os == 'ubuntu' and ((neutron.lbaas.enabled == "smart" and
+  when: ansible_os_family == 'Debian' and ((neutron.lbaas.enabled == "smart" and
          groups['controller'][0] not in groups['compute']) or
          neutron.lbaas.enabled|bool)
   with_dict:
@@ -234,7 +234,7 @@
     config_dirs: /etc/neutron
     config_files: "{{ item.value.config_files|join(',') }}"
     #envs: "{{ neutron.service.envs }}"
-  when: os == 'rhel' and openstack_install_method == 'source' and ((neutron.lbaas.enabled == "smart" and
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'source' and ((neutron.lbaas.enabled == "smart" and
          groups['controller'][0] not in groups['compute']) or
          neutron.lbaas.enabled|bool)
   with_dict:
@@ -252,7 +252,7 @@
     config_dirs: /etc/neutron
     config_files: "{{ item.value.config_files|join(',') }}"
     #envs: "{{ neutron.service.envs }}"
-  when: os == 'rhel' and openstack_install_method == 'package' and ((neutron.lbaas.enabled == "smart" and
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'package' and ((neutron.lbaas.enabled == "smart" and
          groups['controller'][0] not in groups['compute']) or
          neutron.lbaas.enabled|bool)
   with_dict:

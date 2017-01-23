@@ -15,7 +15,7 @@
       src: "{{ item.src | default(omit) }}"
     with_items: "{{ ssl.extracacerts | default([]) }}"
     notify: refresh CAs
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - block:
   - name: custom CA cert directory
@@ -34,7 +34,7 @@
       src: "{{ item.src | default(omit) }}"
     with_items: "{{ ssl.extracacerts | default([]) }}"
     notify: refresh rhel CAs
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 
 - name: ssl directory
@@ -54,15 +54,15 @@
     register: result
     until: result|succeeded
     retries: 5
-    when: (os == 'ubuntu') or (os == 'rhel' and openstack_install_method == 'source')
+    when: (ansible_os_family == 'Debian') or (ansible_os_family == 'RedHat' and openstack_install_method == 'source')
 
   - name: pip install requests
     pip: name=requests version=2.11.1
     register: result
     until: result|succeeded
     retries: 5
-  when: (os == 'rhel' and openstack_install_method != 'distro') or
-        (os == 'ubuntu' and ansible_distribution_version == "12.04")
+  when: (ansible_os_family == 'RedHat' and openstack_install_method != 'distro') or
+        (ansible_os_family == 'Debian' and ansible_distribution_version == "12.04")
 
 # ugly hack: some python http libs don't honor the system ca-certs, and ship with
 # their own list, instead.
@@ -74,7 +74,7 @@
     - /usr/share/pyshared/httplib2/cacerts.txt
     - /usr/local/lib/python2.7/dist-packages/httplib2/cacerts.txt
     - /usr/local/lib/python2.7/dist-packages/requests/cacert.pem
-  when: os == 'ubuntu' and ansible_distribution_version == "12.04"
+  when: ansible_os_family == 'Debian' and ansible_distribution_version == "12.04"
 
 - name: force our ssl cert for python libs on precise
   file: src=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt dest={{ item }} owner=root
@@ -82,14 +82,14 @@
   with_items:
     - /usr/lib/python2.7/site-packages/httplib2/cacerts.txt
     - /usr/lib/python2.7/site-packages/requests/cacert.pem
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: httplib2 and request Python modules that already use system CA certs
   package: name={{ item }}
   with_items:
     - python-httplib2
     - python-requests
-  when: os == 'ubuntu' and ansible_distribution_version == "14.04"
+  when: ansible_os_family == 'Debian' and ansible_distribution_version == "14.04"
   register: result
   until: result|succeeded
   retries: 5
@@ -98,4 +98,4 @@
 
 - name: update ca certificates
   command: update-ca-certificates
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'

@@ -23,7 +23,7 @@
     - openstack-nova-consoleauth
     - openstack-nova-scheduler
   notify: restart sensu-client
-  when: openstack_install_method == 'distro' and os == 'rhel'
+  when: openstack_install_method == 'distro' and ansible_os_family == 'RedHat'
 
 - name: nova-api process checks
   sensu_process_check: service=nova-api warn_over=20 crit_over=30
@@ -33,7 +33,7 @@
 - name: nova-api process checks
   sensu_process_check: service=openstack-nova-api warn_over=20 crit_over=30
   notify: restart sensu-client
-  when: openstack_install_method == 'distro' and os == 'rhel'
+  when: openstack_install_method == 'distro' and ansible_os_family == 'RedHat'
 
 - name: nova-api check
   sensu_check: name=check-nova-api plugin=check-os-api.rb

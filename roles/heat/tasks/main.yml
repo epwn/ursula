@@ -19,7 +19,7 @@
   with_items:
     - "{{ endpoints.heat.port.haproxy_api }}"
     - "{{ endpoints.heat_cfn.port.haproxy_api }}"
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: Permit access to heat
   firewalld:
@@ -30,7 +30,7 @@
     - "{{ endpoints.heat.port.haproxy_api }}"
     - "{{ endpoints.heat_cfn.port.backend_api }}"
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 - name: install heat services
   upstart_service: name={{ item }}
@@ -41,7 +41,7 @@
     - heat-api
     - heat-api-cfn
     - heat-engine
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: install heat services (rhel source)
   systemd_service: name={{ item }}
@@ -52,7 +52,7 @@
     - heat-api
     - heat-api-cfn
     - heat-engine
-  when: os == 'rhel' and openstack_install_method == 'source'
+  when: ansible_os_family == 'RedHat' and openstack_install_method == 'source'
 
 - name: heat config
   template: src=etc/heat/{{ item }} dest=/etc/heat/{{ item }} mode={{ 0644 if 'policy.json' in item else 0640 }} owner=heat group=heat

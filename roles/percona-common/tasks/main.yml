@@ -1,10 +1,10 @@
 ---
 - set_fact:
     garbd_service: garbd
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
 - set_fact:
     garbd_service: garb
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 
 - name: create mysql user

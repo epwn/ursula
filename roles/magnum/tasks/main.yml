@@ -69,7 +69,7 @@
   with_items:
     - "{{ endpoints.magnum.port.haproxy_api }}"
   tags: firewall
-  when: os == 'rhel'
+  when: ansible_os_family == 'RedHat'
 
 # TODO:
 #- include: monitoring.yml tags=monitoring,common

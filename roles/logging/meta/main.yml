@@ -8,4 +8,4 @@ dependencies:
   - role: sensu-check
   - role: repos
     repo: elastic
-    when: os == 'rhel'
+    when: ansible_os_family == 'RedHat'

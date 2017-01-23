@@ -12,7 +12,7 @@
 
 - name: update iproute2 to latest ppa
   package: name=iproute2 state=latest
-  when: os == 'ubuntu'
+  when: ansible_os_family == 'Debian'
   register: result
   until: result|succeeded
   retries: 5
@@ -20,7 +20,7 @@
 - name: permit VXLAN traffic
   ufw: rule=allow to_port=4789 proto=udp
   tags: ufw
-  when:  os == 'ubuntu' and
+  when:  ansible_os_family == 'Debian' and
          neutron.plugin == 'ml2' and 'vxlan' in neutron.tunnel_types
 
 - name: ml2 dataplane config
@@ -37,7 +37,7 @@
                    cmd=/usr/local/bin/neutron-linuxbridge-agent
                    config_dirs=/etc/neutron
                    config_files=/etc/neutron/neutron.conf,/etc/neutron/plugins/ml2/ml2_plugin.ini,/etc/neutron/plugins/ml2/ml2_plugin_dataplane.ini
-  when: os == 'ubuntu' and neutron.plugin == 'ml2'
+  when: ansible_os_family == 'Debian' and neutron.plugin == 'ml2'
 
 - name: install neutron-linuxbridge-agent service (rhel source)
   systemd_service: name=neutron-linuxbridge-agent
@@ -45,7 +45,7 @@
                    cmd=/usr/local/bin/neutron-linuxbridge-agent
                    config_dirs=/etc/neutron
                    config_files=/etc/neutron/neutron.conf,/etc/neutron/plugins/ml2/ml2_plugin.ini,/etc/neutron/plugins/ml2/ml2_plugin_dataplane.ini
-  when: os == 'rhel' and neutron.plugin == 'ml2' and openstack_install_method == 'source'
+  when: ansible_os_family == 'RedHat' and neutron.plugin == 'ml2' and openstack_install_method == 'source'
 
 - name: install neutron-linuxbridge-agent service (rhel package)
   systemd_service: name=neutron-linuxbridge-agent
@@ -53,7 +53,7 @@
                    cmd=/bin/neutron-linuxbridge-agent
                    config_dirs=/etc/neutron
                    config_files=/etc/neutron/neutron.conf,/etc/neutron/plugins/ml2/ml2_plugin.ini,/etc/neutron/plugins/ml2/ml2_plugin_dataplane.ini
-  when: os == 'rhel' and neutron.plugin == 'ml2' and openstack_install_method == 'distro'
+  when: ansible_os_family == 'RedHat' and neutron.plugin == 'ml2' and openstack_install_method == 'distro'
 
 - name: trigger restart on upgrades
   debug:

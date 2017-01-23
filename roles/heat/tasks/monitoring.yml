@@ -15,7 +15,7 @@
     - openstack-heat-api-cfn
     - openstack-heat-engine
   notify: restart sensu-client
-  when: openstack_install_method == 'distro' and os == 'rhel'
+  when: openstack_install_method == 'distro' and ansible_os_family == 'RedHat'
 
 - name: heat-api check
   sensu_check: name=check-heat-api plugin=check-os-api.rb
