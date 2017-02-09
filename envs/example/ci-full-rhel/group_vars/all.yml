@@ -21,6 +21,13 @@ neutron:
   enable_external_interface: True
   lbaas:
     enabled: False
+  jellyroll: true
+  distro:
+    python_post_dependencies:
+      - name: python-memcached
+      - name: jellyroll
+        version: 0.0.9.dev19
+        pip_extra_args: ~
 
 common:
   hwraid:
@@ -56,6 +63,13 @@ haproxy:
 keystone:
   uwsgi:
     method: port
+  jellyroll: true
+  distro:
+    python_post_dependencies:
+      - name: python-memcached
+      - name: jellyroll
+        version: 0.0.9.dev19
+        pip_extra_args: ~
 
 heat:
   enabled: True
